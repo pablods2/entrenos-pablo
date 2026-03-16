@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Entrenamiento Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab:hover {
+            background: #e0e0e0;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Lista de Ejercicios */
+        .muscle-groups {
+            display: grid;
+            gap: 15px;
+        }
+
+        .muscle-group {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .muscle-group:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .muscle-group-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .muscle-group-content {
+            display: none;
+            padding: 20px;
+            background: #f9f9f9;
+        }
+
+        .muscle-group-content.show {
+            display: block;
+        }
+
+        .exercise-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .exercise-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .exercise-info {
+            flex: 1;
+        }
+
+        .exercise-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .exercise-weight {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .btn-delete {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-delete:hover {
+            background: #ee5a6f;
+            transform: scale(1.05);
+        }
+
+        .add-exercise-form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 2px dashed #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Registro de Entrenamientos */
+        .workout-list {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .workout-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 6px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .workout-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+
+        .workout-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .workout-date {
+            font-weight: 700;
+            font-size: 18px;
+            color: #667eea;
+        }
+
+        .workout-description {
+            color: #666;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        .workout-exercises {
+            display: grid;
+            gap: 10px;
+        }
+
+        .workout-exercise {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .workout-exercise strong {
+            color: #333;
+        }
+
+        .workout-exercise span {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Formulario de nuevo entrenamiento */
+        .exercise-entry {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid #667eea;
+        }
+
+        .exercise-entry-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .btn-remove {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-add-exercise {
+            background: #2ed573;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-add-exercise:hover {
+            background: #26de81;
+            transform: scale(1.02);
+        }
+
+        /* Botones de exportación */
+        .export-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-export {
+            background: #2ed573;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-export:hover {
+            background: #26de81;
+            transform: translateY(-2px);
+        }
+
+        .btn-import {
+            background: #ffa502;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-import:hover {
+            background: #ff7f50;
+            transform: translateY(-2px);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .workout-exercise {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+
+            .exercise-entry-row {
+                grid-template-columns: 1fr;
+            }
+
+            .export-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .arrow {
+            transition: transform 0.3s ease;
+        }
+
+        .arrow.rotate {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💪 Los entrenos de Pablo</h1>
+            <p>Registra tus entrenamientos y consulta tu lista de ejercicios</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('workouts')">📋 Mis Entrenamientos</button>
+            <button class="tab" onclick="switchTab('exercises')">🏋️ Lista de Ejercicios</button>
+        </div>
+
+        <!-- Tab: Mis Entrenamientos -->
+        <div id="workouts-tab" class="tab-content active">
+            <h2 style="margin-bottom: 20px; color: #667eea;">Registrar Nuevo Entrenamiento</h2>
+            
+            <form id="workout-form">
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <input type="date" id="workout-date" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Descripción del entrenamiento</label>
+                    <textarea id="workout-description" rows="3" placeholder="Ej: Día de pierna - Fuerza"></textarea>
+                </div>
+
+                <h3 style="margin: 20px 0 10px 0; color: #667eea;">Ejercicios realizados</h3>
+                
+                <button type="button" class="btn-add-exercise" onclick="addExerciseEntry()">+ Añadir Ejercicio</button>
+                
+                <div id="exercise-entries"></div>
+
+                <button type="submit" class="btn-primary" style="margin-top: 20px;">Guardar Entrenamiento</button>
+            </form>
+
+            <div class="export-buttons">
+                <button class="btn-export" onclick="exportData()">📤 Exportar Datos</button>
+                <label class="btn-import" style="text-align: center; display: block; margin: 0;">
+                    📥 Importar Datos
+                    <input type="file" id="import-file" accept=".json" onchange="importData(event)">
+                </label>
+            </div>
+
+            <h2 style="margin-top: 40px; margin-bottom: 20px; color: #667eea;">Historial de Entrenamientos</h2>
+            <div id="workout-list" class="workout-list"></div>
+        </div>
+
+        <!-- Tab: Lista de Ejercicios -->
+        <div id="exercises-tab" class="tab-content">
+            <h2 style="margin-bottom: 20px; color: #667eea;">Mi Lista de Ejercicios</h2>
+            
+            <div class="muscle-groups" id="muscle-groups"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración inicial
+        const muscleGroups = [
+            'Espalda',
+            'Bíceps',
+            'Pierna',
+            'Tríceps',
+            'Pecho',
+            'Hombro',
+            'Core',
+            'Ejercicios complementarios'
+        ];
+
+        // Datos almacenados
+        let exercises = {};
+        let workouts = [];
+
+        // Inicializar estructura de ejercicios
+        muscleGroups.forEach(group => {
+            exercises[group] = [];
+        });
+
+        // Cargar datos del localStorage
+        function loadData() {
+            const savedExercises = localStorage.getItem('exercises');
+            const savedWorkouts = localStorage.getItem('workouts');
+            
+            if (savedExercises) {
+                exercises = JSON.parse(savedExercises);
+            }
+            
+            if (savedWorkouts) {
+                workouts = JSON.parse(savedWorkouts);
+            }
+        }
+
+        // Guardar datos en localStorage
+        function saveData() {
+            localStorage.setItem('exercises', JSON.stringify(exercises));
+            localStorage.setItem('workouts', JSON.stringify(workouts));
+        }
+
+        // Cambiar de pestaña
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+            
+            if (tab === 'workouts') {
+                document.querySelector('.tab:nth-child(1)').classList.add('active');
+                document.getElementById('workouts-tab').classList.add('active');
+            } else {
+                document.querySelector('.tab:nth-child(2)').classList.add('active');
+                document.getElementById('exercises-tab').classList.add('active');
+            }
+        }
+
+        // Renderizar grupos musculares
+        function renderMuscleGroups() {
+            const container = document.getElementById('muscle-groups');
+            container.innerHTML = '';
+
+            muscleGroups.forEach(group => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'muscle-group';
+                
+                groupDiv.innerHTML = `
+                    <div class="muscle-group-header" onclick="toggleGroup('${group}')">
+                        <span>${group} (${exercises[group].length})</span>
+                        <span class="arrow" id="arrow-${group}">▼</span>
+                    </div>
+                    <div class="muscle-group-content" id="content-${group}">
+                        <div id="exercises-${group}"></div>
+                        <div class="add-exercise-form">
+                            <h4 style="margin-bottom: 15px;">Añadir nuevo ejercicio</h4>
+                            <div class="form-group">
+                                <label>Nombre del ejercicio</label>
+                                <input type="text" id="name-${group}" placeholder="Ej: Press banca">
+                            </div>
+                            <div class="form-group">
+                                <label>Peso habitual (kg)</label>
+                                <input type="text" id="weight-${group}" placeholder="Ej: 80kg o 3x12">
+                            </div>
+                            <button class="btn-primary" onclick="addExercise('${group}')">Añadir Ejercicio</button>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(groupDiv);
+                renderExercises(group);
+            });
+        }
+
+        // Toggle grupo muscular
+        function toggleGroup(group) {
+            const content = document.getElementById(`content-${group}`);
+            const arrow = document.getElementById(`arrow-${group}`);
+            
+            content.classList.toggle('show');
+            arrow.classList.toggle('rotate');
+        }
+
+        // Renderizar ejercicios de un grupo
+        function renderExercises(group) {
+            const container = document.getElementById(`exercises-${group}`);
+            container.innerHTML = '';
+
+            exercises[group].forEach((exercise, index) => {
+                const exerciseDiv = document.createElement('div');
+                exerciseDiv.className = 'exercise-item';
+                exerciseDiv.innerHTML = `
+                    <div class="exercise-info">
+                        <div class="exercise-name">${exercise.name}</div>
+                        <div class="exercise-weight">Peso: ${exercise.weight}</div>
+                    </div>
+                    <button class="btn-delete" onclick="deleteExercise('${group}', ${index})">Eliminar</button>
+                `;
+                container.appendChild(exerciseDiv);
+            });
+        }
+
+        // Añadir ejercicio
+        function addExercise(group) {
+            const name = document.getElementById(`name-${group}`).value.trim();
+            const weight = document.getElementById(`weight-${group}`).value.trim();
+
+            if (!name || !weight) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+
+            exercises[group].push({ name, weight });
+            saveData();
+            
+            document.getElementById(`name-${group}`).value = '';
+            document.getElementById(`weight-${group}`).value = '';
+            
+            renderMuscleGroups();
+        }
+
+        // Eliminar ejercicio
+        function deleteExercise(group, index) {
+            if (confirm('¿Estás seguro de eliminar este ejercicio?')) {
+                exercises[group].splice(index, 1);
+                saveData();
+                renderMuscleGroups();
+            }
+        }
+
+        // Añadir entrada de ejercicio en el formulario de entrenamiento
+        let exerciseEntryCount = 0;
+
+        function addExerciseEntry() {
+            const container = document.getElementById('exercise-entries');
+            const entryDiv = document.createElement('div');
+            entryDiv.className = 'exercise-entry';
+            entryDiv.id = `entry-${exerciseEntryCount}`;
+            
+            entryDiv.innerHTML = `
+                <div class="exercise-entry-row">
+                    <div class="form-group">
+                        <label>Ejercicio</label>
+                        <input type="text" class="entry-name" placeholder="Nombre del ejercicio" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Series</label>
+                        <input type="text" class="entry-sets" placeholder="Ej: 4x8" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Peso (kg)</label>
+                        <input type="text" class="entry-weight" placeholder="Ej: 80kg" required>
+                    </div>
+                    <button type="button" class="btn-remove" onclick="removeExerciseEntry(${exerciseEntryCount})">✕</button>
+                </div>
+            `;
+            
+            container.appendChild(entryDiv);
+            exerciseEntryCount++;
+        }
+
+        function removeExerciseEntry(id) {
+            const entry = document.getElementById(`entry-${id}`);
+            if (entry) {
+                entry.remove();
+            }
+        }
+
+        // Guardar entrenamiento
+        document.getElementById('workout-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const date = document.getElementById('workout-date').value;
+            const description = document.getElementById('workout-description').value;
+            
+            const exerciseElements = document.querySelectorAll('.exercise-entry');
+            const exercisesList = [];
+            
+            exerciseElements.forEach(entry => {
+                const name = entry.querySelector('.entry-name').value.trim();
+                const sets = entry.querySelector('.entry-sets').value.trim();
+                const weight = entry.querySelector('.entry-weight').value.trim();
+                
+                if (name && sets && weight) {
+                    exercisesList.push({ name, sets, weight });
+                }
+            });
+
+            if (exercisesList.length === 0) {
+                alert('Añade al menos un ejercicio al entrenamiento');
+                return;
+            }
+
+            const workout = {
+                id: Date.now(),
+                date,
+                description,
+                exercises: exercisesList
+            };
+
+            workouts.unshift(workout);
+            saveData();
+
+            // Limpiar formulario
+            document.getElementById('workout-form').reset();
+            document.getElementById('exercise-entries').innerHTML = '';
+            exerciseEntryCount = 0;
+
+            renderWorkouts();
+            alert('¡Entrenamiento guardado con éxito!');
+        });
+
+        // Renderizar entrenamientos
+        function renderWorkouts() {
+            const container = document.getElementById('workout-list');
+            container.innerHTML = '';
+
+            if (workouts.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">No hay entrenamientos registrados aún</p>';
+                return;
+            }
+
+            workouts.forEach((workout, index) => {
+                const workoutDiv = document.createElement('div');
+                workoutDiv.className = 'workout-card';
+                
+                const exercisesHTML = workout.exercises.map(ex => `
+                    <div class="workout-exercise">
+                        <strong>${ex.name}</strong>
+                        <span>Series: ${ex.sets}</span>
+                        <span>Peso: ${ex.weight}</span>
+                    </div>
+                `).join('');
+
+                workoutDiv.innerHTML = `
+                    <div class="workout-header">
+                        <div class="workout-date">${new Date(workout.date).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                        <button class="btn-delete" onclick="deleteWorkout(${index})">Eliminar</button>
+                    </div>
+                    ${workout.description ? `<div class="workout-description">${workout.description}</div>` : ''}
+                    <div class="workout-exercises">
+                        ${exercisesHTML}
+                    </div>
+                `;
+                
+                container.appendChild(workoutDiv);
+            });
+        }
+
+        // Eliminar entrenamiento
+        function deleteWorkout(index) {
+            if (confirm('¿Estás seguro de eliminar este entrenamiento?')) {
+                workouts.splice(index, 1);
+                saveData();
+                renderWorkouts();
+            }
+        }
+
+        // Exportar datos
+        function exportData() {
+            const data = {
+                exercises,
+                workouts,
+                exportDate: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `entrenamiento-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Importar datos
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (data.exercises) exercises = data.exercises;
+                    if (data.workouts) workouts = data.workouts;
+                    
+                    saveData();
+                    renderMuscleGroups();
+                    renderWorkouts();
+                    
+                    alert('¡Datos importados con éxito!');
+                } catch (error) {
+                    alert('Error al importar los datos. Verifica que el archivo sea válido.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Establecer fecha de hoy por defecto
+        document.getElementById('workout-date').valueAsDate = new Date();
+
+        // Inicializar aplicación
+        loadData();
+        renderMuscleGroups();
+        renderWorkouts();
+    </script>
+</body>
+</html>
